@@ -60,8 +60,11 @@ const std::string version_string = "1.2.2";
 
 template<typename... Ts>
 void exit_error(const char* str, Ts ...args) {
-    // TODO pop up an error
-    ((void)fprintf(stderr, str, args), ...);
+    // @mod Show the error in a message box so the game doesn't close silently.
+    char error_buf[1024];
+    snprintf(error_buf, sizeof(error_buf), str, args...);
+    fprintf(stderr, "%s", error_buf);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Zelda64Recompiled", error_buf, nullptr);
     assert(false);
         
     ultramodern::error_handling::quick_exit(__FILE__, __LINE__, __FUNCTION__);
@@ -568,9 +571,28 @@ void reorder_texture_pack(recomp::mods::ModContext&) {
 
 #define REGISTER_FUNC(name) recomp::overlays::register_base_export(#name, name)
 
+#if defined(_WIN32)
+// @mod Report unhandled crashes instead of closing silently.
+static LONG WINAPI mod_crash_handler(EXCEPTION_POINTERS* info) {
+    HMODULE base = GetModuleHandleW(nullptr);
+    uintptr_t addr = (uintptr_t)info->ExceptionRecord->ExceptionAddress;
+    char msg[512];
+    snprintf(msg, sizeof(msg),
+        "O jogo travou.\n\nCodigo: 0x%08lX\nEndereco: exe+0x%llX\n\nMande um print desta mensagem.",
+        (unsigned long)info->ExceptionRecord->ExceptionCode,
+        (unsigned long long)(addr - (uintptr_t)base));
+    fprintf(stderr, "%s\n", msg);
+    MessageBoxA(nullptr, msg, "Zelda64Recompiled - erro", MB_OK | MB_ICONERROR);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 int main(int argc, char** argv) {
     (void)argc;
     (void)argv;
+#if defined(_WIN32)
+    SetUnhandledExceptionFilter(mod_crash_handler);
+#endif
     recomp::Version project_version{};
     if (!recomp::Version::from_string(version_string, project_version)) {
         ultramodern::error_handling::message_box(("Invalid version string: " + version_string).c_str());

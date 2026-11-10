@@ -279,7 +279,12 @@ zelda64::renderer::RT64Context::RT64Context(uint8_t* rdram, ultramodern::rendere
             app->userConfig.graphicsAPI = RT64::UserConfiguration::GraphicsAPI::Metal;
             break;
         case ultramodern::renderer::GraphicsApi::Auto:
+#if defined(__MINGW32__)
+            // @mod The MinGW build crashes with D3D12, so "Auto" uses Vulkan.
+            app->userConfig.graphicsAPI = RT64::UserConfiguration::GraphicsAPI::Vulkan;
+#else
             app->userConfig.graphicsAPI = RT64::UserConfiguration::GraphicsAPI::Automatic;
+#endif
             break;
     }
 
