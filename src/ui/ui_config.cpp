@@ -233,6 +233,7 @@ struct ControlOptionsContext {
     int rumble_strength; // 0 to 100
     int gyro_sensitivity; // 0 to 100
     int mouse_sensitivity; // 0 to 100
+    int mouse_camera_sensitivity; // 0 to 100 (@mod)
     int joystick_deadzone; // 0 to 100
     zelda64::TargetingMode targeting_mode;
     recomp::BackgroundInputMode background_input_mode;
@@ -261,6 +262,17 @@ int recomp::get_gyro_sensitivity() {
 
 int recomp::get_mouse_sensitivity() {
     return control_options_context.mouse_sensitivity;
+}
+
+int recomp::get_mouse_camera_sensitivity() {
+    return control_options_context.mouse_camera_sensitivity;
+}
+
+void recomp::set_mouse_camera_sensitivity(int sensitivity) {
+    control_options_context.mouse_camera_sensitivity = sensitivity;
+    if (general_model_handle) {
+        general_model_handle.DirtyVariable("mouse_camera_sensitivity");
+    }
 }
 
 int recomp::get_joystick_deadzone() {
@@ -915,6 +927,7 @@ public:
         constructor.Bind("rumble_strength", &control_options_context.rumble_strength);
         constructor.Bind("gyro_sensitivity", &control_options_context.gyro_sensitivity);
         constructor.Bind("mouse_sensitivity", &control_options_context.mouse_sensitivity);
+        constructor.Bind("mouse_camera_sensitivity", &control_options_context.mouse_camera_sensitivity);
         constructor.Bind("joystick_deadzone", &control_options_context.joystick_deadzone);
         bind_option(constructor, "targeting_mode", &control_options_context.targeting_mode);
         bind_option(constructor, "background_input_mode", &control_options_context.background_input_mode);

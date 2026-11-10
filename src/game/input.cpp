@@ -314,7 +314,7 @@ void recomp::handle_events() {
         exited = sdl_event_filter(nullptr, &cur_event);
 
         // Lock the cursor if all three conditions are true: mouse aiming is enabled, game input is not disabled, and the game has been started. 
-        bool cursor_locked = (recomp::get_mouse_sensitivity() != 0) && !recomp::game_input_disabled() && ultramodern::is_game_started();
+        bool cursor_locked = (recomp::get_mouse_sensitivity() != 0 || recomp::get_mouse_camera_sensitivity() != 0) && !recomp::game_input_disabled() && ultramodern::is_game_started();
 
         // Hide the cursor based on its enable state, but override visibility to false if the cursor is locked.
         bool cursor_visible = cursor_enabled;
@@ -687,6 +687,14 @@ void recomp::get_gyro_deltas(float* x, float* y) {
 void recomp::get_mouse_deltas(float* x, float* y) {
     std::array<float, 2> cur_mouse_delta = InputState.mouse_delta;
     float sensitivity = (float)recomp::get_mouse_sensitivity() / 100.0f;
+    *x = cur_mouse_delta[0] * sensitivity;
+    *y = cur_mouse_delta[1] * sensitivity;
+}
+
+// @mod Mouse deltas for the third-person camera, using its own sensitivity.
+void recomp::get_mouse_camera_deltas(float* x, float* y) {
+    std::array<float, 2> cur_mouse_delta = InputState.mouse_delta;
+    float sensitivity = (float)recomp::get_mouse_camera_sensitivity() / 100.0f;
     *x = cur_mouse_delta[0] * sensitivity;
     *y = cur_mouse_delta[1] * sensitivity;
 }

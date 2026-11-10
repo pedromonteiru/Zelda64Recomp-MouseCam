@@ -121,7 +121,8 @@ RECOMP_PATCH s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
         // @recomp Invert the Y axis accordingly (default is inverted, so negate if not inverted).
         // Also add in the analog camera Y input. Clamp to prevent moving the camera twice as fast if both sticks are held.
         s32 cam_input_y = analog_y;
-        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF) {
+        // @mod When mouse aiming is on, the left stick (WASD) doesn't move the aim.
+        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF && recomp_get_mouse_aim_sensitivity() == 0) {
             cam_input_y += play->state.input[0].rel.stick_y;
         }
         s32 stick_y;
@@ -148,7 +149,8 @@ RECOMP_PATCH s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
         // @recomp Invert the X axis accordingly. Also add in the analog camera Y input.
         // Clamp to prevent moving the camera twice as fast if both sticks are held.
         s32 cam_input_x = analog_x;
-        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF) {
+        // @mod When mouse aiming is on, the left stick (WASD) doesn't move the aim.
+        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF && recomp_get_mouse_aim_sensitivity() == 0) {
             cam_input_x += play->state.input[0].rel.stick_x;
         }
         s32 stick_x;

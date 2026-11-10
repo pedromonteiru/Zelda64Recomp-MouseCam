@@ -174,6 +174,10 @@ namespace recomp {
     // Gyro and mouse sensitivities range from 0 to 100.
     int get_gyro_sensitivity();
     int get_mouse_sensitivity();
+    // @mod Separate sensitivity for the third-person mouse camera.
+    int get_mouse_camera_sensitivity();
+    void set_mouse_camera_sensitivity(int strength);
+    void get_mouse_camera_deltas(float* x, float* y);
     int get_joystick_deadzone();
     void set_gyro_sensitivity(int strength);
     void set_mouse_sensitivity(int strength);
