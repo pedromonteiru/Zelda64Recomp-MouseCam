@@ -1,0 +1,90 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1cdda09..3d11ee2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -260,38 +260,20 @@ if (WIN32)
+         set(SDL2_VERSION "2.30.3")
+     endif()
+ 
+-    # Fetch SDL2 on windows
+-    FetchContent_Declare(
+-        sdl2
+-        URL https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-devel-${SDL2_VERSION}-VC.zip
+-    )
+-    FetchContent_MakeAvailable(sdl2)
+-    target_include_directories(Zelda64Recompiled PRIVATE
+-        ${sdl2_SOURCE_DIR}/include
+-    )
+-    target_link_directories(Zelda64Recompiled PRIVATE
+-        ${sdl2_SOURCE_DIR}/lib/x64
+-    )
+-
++    set(sdl2_SOURCE_DIR "$ENV{SDL2_MINGW}")
++    target_include_directories(Zelda64Recompiled PRIVATE ${sdl2_SOURCE_DIR}/include/SDL2 ${sdl2_SOURCE_DIR}/include)
++    target_link_directories(Zelda64Recompiled PRIVATE ${sdl2_SOURCE_DIR}/lib)
+     # Copy SDL2 and dxc DLLs to output folder as post build step
+     add_custom_command(TARGET Zelda64Recompiled POST_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+-            "${sdl2_SOURCE_DIR}/lib/x64/SDL2.dll"
++            "${sdl2_SOURCE_DIR}/bin/SDL2.dll"
+             "${CMAKE_SOURCE_DIR}/lib/rt64/src/contrib/dxc/bin/x64/dxil.dll"
+             "${CMAKE_SOURCE_DIR}/lib/rt64/src/contrib/dxc/bin/x64/dxcompiler.dll"
+             $<TARGET_FILE_DIR:Zelda64Recompiled>)
+ 
+-    set_target_properties(
+-        Zelda64Recompiled
+-        PROPERTIES
+-            LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
+-            LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+-            LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+-            LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+-    )
+-
++    target_link_options(Zelda64Recompiled PRIVATE -mwindows -Wl,--no-gc-sections)
+     target_sources(Zelda64Recompiled PRIVATE ${CMAKE_SOURCE_DIR}/icons/app.rc)
+-    target_link_libraries(Zelda64Recompiled PRIVATE SDL2 Winmm.lib)
++    target_link_libraries(Zelda64Recompiled PRIVATE SDL2 winmm)
+ endif()
+ 
+ if (APPLE)
+@@ -363,7 +345,7 @@ set (DXC_GS_OPTS "${DXC_COMMON_OPTS}" "-E" "GSMain" "-T gs_6_0")
+ set (DXC_RT_OPTS "${DXC_COMMON_OPTS}" "-D" "RT_SHADER" "-T" "lib_6_3" "-fspv-target-env=vulkan1.1spirv1.4" "-fspv-extension=SPV_KHR_ray_tracing" "-fspv-extension=SPV_EXT_descriptor_indexing")
+ 
+ if (${WIN32})
+-    set (DXC "${PROJECT_SOURCE_DIR}/lib/rt64/src/contrib/dxc/bin/x64/dxc.exe")
++    set (DXC "LD_LIBRARY_PATH=${PROJECT_SOURCE_DIR}/lib/rt64/src/contrib/dxc/lib/x64" "${PROJECT_SOURCE_DIR}/lib/rt64/src/contrib/dxc/bin/x64/dxc-linux")
+     add_compile_definitions(NOMINMAX)
+ else()
+     if (APPLE)
+diff --git a/src/main/register_overlays.cpp b/src/main/register_overlays.cpp
+index 04ccbc0..d29de0e 100644
+--- a/src/main/register_overlays.cpp
++++ b/src/main/register_overlays.cpp
+@@ -1,3 +1,4 @@
++#include <optional>
+ #include "ovl_patches.hpp"
+ #include "../../RecompiledFuncs/recomp_overlays.inl"
+ 
+diff --git a/src/main/register_patches.cpp b/src/main/register_patches.cpp
+index 91bbe80..c6a0917 100644
+--- a/src/main/register_patches.cpp
++++ b/src/main/register_patches.cpp
+@@ -1,3 +1,4 @@
++#include <optional>
+ #include "ovl_patches.hpp"
+ #include "../../RecompiledPatches/patches_bin.h"
+ #include "../../RecompiledPatches/recomp_overlays.inl"
+diff --git a/src/game/scene_table.cpp b/src/game/scene_table.cpp
+index af24c7b..30bd2db 100644
+--- a/src/game/scene_table.cpp
++++ b/src/game/scene_table.cpp
+@@ -3,6 +3,9 @@
+ #include <string>
+ #include "zelda_debug.h"
+ 
++#if defined(__MINGW32__)
++__attribute__((init_priority(101)))
++#endif
+ std::vector<zelda64::AreaWarps> zelda64::game_warps {
+     { "Clock Town", {
+         {

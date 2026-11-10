@@ -164,6 +164,14 @@ bool sdl_event_filter(void* userdata, SDL_Event* event) {
         recompui::activate_mouse();
         break;
     }
+    case SDL_EventType::SDL_MOUSEBUTTONDOWN:
+        // @mod Allow binding mouse buttons while scanning keyboard inputs.
+        if (scanning_device == recomp::InputDevice::Keyboard) {
+            set_scanned_input({(uint32_t)InputType::Mouse, event->button.button});
+            break;
+        }
+        queue_if_enabled(event);
+        break;
     case SDL_EventType::SDL_MOUSEWHEEL:
         {
             SDL_MouseWheelEvent* wheel_event = &event->wheel;    
@@ -623,8 +631,8 @@ float recomp::get_input_analog(const recomp::InputField& field) {
     case InputType::ControllerAnalog:
         return controller_axis_state(field.input_id, true);
     case InputType::Mouse:
-        // TODO mouse support
-        return 0.0f;
+        // @mod Mouse button support.
+        return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(field.input_id)) ? 1.0f : 0.0f;
     case InputType::None:
         return false;
     }
@@ -654,8 +662,8 @@ bool recomp::get_input_digital(const recomp::InputField& field) {
         // TODO adjustable threshold
         return controller_axis_state(field.input_id, true) >= axis_threshold;
     case InputType::Mouse:
-        // TODO mouse support
-        return false;
+        // @mod Mouse button support.
+        return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(field.input_id)) != 0;
     case InputType::None:
         return false;
     }
@@ -903,6 +911,15 @@ std::string recomp::InputField::to_string() const {
             return controller_axis_to_string(input_id);
         case InputType::Keyboard:
             return keyboard_input_to_string((SDL_Scancode)input_id);
+        case InputType::Mouse:
+            switch (input_id) {
+                case SDL_BUTTON_LEFT: return "LMB";
+                case SDL_BUTTON_MIDDLE: return "MMB";
+                case SDL_BUTTON_RIGHT: return "RMB";
+                case SDL_BUTTON_X1: return "M4";
+                case SDL_BUTTON_X2: return "M5";
+                default: return "M" + std::to_string(input_id);
+            }
         default:
             return std::to_string(input_type) + "," + std::to_string(input_id);
     }

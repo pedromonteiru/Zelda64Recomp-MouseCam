@@ -69,6 +69,15 @@ void update_analog_cam(Camera* c) {
     float input_x, input_y;
     recomp_get_camera_inputs(&input_x, &input_y);
 
+    // @mod Mouse camera: add mouse movement to the right analog input (uses Mouse Sensitivity from the menu).
+    {
+        float mouse_dx, mouse_dy;
+        recomp_get_mouse_deltas(&mouse_dx, &mouse_dy);
+        const float mouse_to_stick = 0.05f; // tweak to change mouse camera speed
+        input_x += mouse_dx * mouse_to_stick;
+        input_y += mouse_dy * mouse_to_stick;
+    }
+
     if (fabsf(input_x) >= analog_cam_threshold || fabsf(input_y) >= analog_cam_threshold) {
         analog_cam_active = true;
     }

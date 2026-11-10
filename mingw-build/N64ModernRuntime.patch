@@ -1,0 +1,14 @@
+diff --git a/ultramodern/include/ultramodern/ultra64.h b/ultramodern/include/ultramodern/ultra64.h
+index 31eb106..6a4da99 100644
+--- a/ultramodern/include/ultramodern/ultra64.h
++++ b/ultramodern/include/ultramodern/ultra64.h
+@@ -2,6 +2,9 @@
+ #define __ULTRA64_ultramodern_H__
+ 
+ #include <stdint.h>
++#ifdef __MINGW32__
++#include <stddef.h>
++#endif
+ 
+ #ifdef __GNUC__
+ #define UNUSED __attribute__((unused))

@@ -1,0 +1,88 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fc06930..48216ab 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,7 +40,11 @@ function(preprocess INFILE OUTFILE OPTIONS)
+ endfunction()
+ 
+ if (WIN32)
+-    set (DXC "${PROJECT_SOURCE_DIR}/src/contrib/dxc/bin/x64/dxc.exe")
++    if (CMAKE_HOST_UNIX)
++        set (DXC "LD_LIBRARY_PATH=${PROJECT_SOURCE_DIR}/src/contrib/dxc/lib/x64" "${PROJECT_SOURCE_DIR}/src/contrib/dxc/bin/x64/dxc-linux")
++    else()
++        set (DXC "${PROJECT_SOURCE_DIR}/src/contrib/dxc/bin/x64/dxc.exe")
++    endif()
+     add_compile_definitions(NOMINMAX)
+ 
+     # Dependencies that must be next to the DLL.
+@@ -90,7 +94,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 20.0)
+         add_compile_options(-Wno-deprecated-literal-operator -Wno-nontrivial-memcall)
+     endif()
+-    add_compile_options(-Werror)
++    if (NOT MINGW)
++        add_compile_options(-Werror)
++    endif()
+ endif()
+ 
+ set(ANDROID_PLATFORM android-24)
+@@ -280,9 +286,9 @@ endfunction()
+ 
+ # Point cmake at src/contrib/mupen64plus-win32-deps/SDL2-2.26.3 for SDL2 on windows, look for an installed package on other systems
+ if (WIN32)
+-    set(SDL2_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src/contrib/mupen64plus-win32-deps/SDL2-2.26.3/include")
++    set(SDL2_INCLUDE_DIRS "$ENV{SDL2_MINGW}/include/SDL2" "$ENV{SDL2_MINGW}/include")
+     set(SDL2_LIBRARIES "SDL2" "SDL2main")
+-    link_directories("${PROJECT_SOURCE_DIR}/src/contrib/mupen64plus-win32-deps/SDL2-2.26.3/lib/x64")
++    link_directories("$ENV{SDL2_MINGW}/lib")
+ else()
+     find_package(SDL2 REQUIRED)
+ endif()
+@@ -464,7 +470,6 @@ if (WIN32)
+         "${PROJECT_SOURCE_DIR}/src/contrib/imgui/backends/imgui_impl_win32.cpp"
+     )
+     target_link_libraries(rt64
+-        delayimp.lib
+         D3D12
+         DXGI
+         Shcore.lib
+diff --git a/src/common/rt64_tmem_hasher.h b/src/common/rt64_tmem_hasher.h
+index 9a332ab..090fbf0 100644
+--- a/src/common/rt64_tmem_hasher.h
++++ b/src/common/rt64_tmem_hasher.h
+@@ -23,7 +23,7 @@ static unsigned bitScanForward64(uint64_t val) {
+         __assume(0);
+     }
+ #endif
+-#elif defined(__GNUC__) && (__GNUC__ >= 4) && defined(__LP64__)
++#elif defined(__GNUC__) && (__GNUC__ >= 4) && (defined(__LP64__) || defined(_WIN64))
+     return (unsigned)__builtin_ctzll(val);
+ #elif defined(__ICCARM__)
+     return (unsigned)__builtin_ctzll(val);
+diff --git a/src/render/rt64_optimus.cpp b/src/render/rt64_optimus.cpp
+index 348aa52..db52706 100644
+--- a/src/render/rt64_optimus.cpp
++++ b/src/render/rt64_optimus.cpp
+@@ -8,7 +8,7 @@
+ 
+ extern "C" {
+     // Exporting this flag indicates to the NVIDIA driver that it should prefer using the high performance device.
+-    _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
++    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+ }
+ 
+ #endif
+\ No newline at end of file
+diff --git a/src/render/rt64_texture_cache.cpp b/src/render/rt64_texture_cache.cpp
+index 35dd269..811f5c0 100644
+--- a/src/render/rt64_texture_cache.cpp
++++ b/src/render/rt64_texture_cache.cpp
+@@ -1513,7 +1513,7 @@ namespace RT64 {
+                 if (fileSystems[i]->load(ReplacementDatabaseFilename, databaseBytes)) {
+                     try {
+                         ReplacementDatabase db;
+-                        db = json::parse(databaseBytes.begin(), databaseBytes.end(), nullptr, true);
++                        db = json::parse(reinterpret_cast<const char *>(databaseBytes.data()), reinterpret_cast<const char *>(databaseBytes.data()) + databaseBytes.size(), nullptr, true);
+ 
+                         if (db.config.hashVersion <= TMEMHasher::CurrentHashVersion) {
+                             db.resolvePaths(fileSystems[i].get(), uint32_t(i), fileSystemResolvedPaths[i], false, nullptr, &fileSystemStreamSets[i]);
