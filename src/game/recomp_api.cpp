@@ -115,6 +115,11 @@ extern "C" void recomp_time_us(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, static_cast<u32>(std::chrono::duration_cast<std::chrono::microseconds>(ultramodern::time_since_start()).count()));
 }
 
+// @mod Whether white screen transitions should be drawn black.
+extern "C" void recomp_get_dark_transitions_enabled(uint8_t* rdram, recomp_context* ctx) {
+    _return(ctx, static_cast<s32>(zelda64::get_dark_transitions_mode() == zelda64::DarkTransitionsMode::On));
+}
+
 extern "C" void recomp_get_autosave_enabled(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, static_cast<s32>(zelda64::get_autosave_mode() == zelda64::AutosaveMode::On));
 }

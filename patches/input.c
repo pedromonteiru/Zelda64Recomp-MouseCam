@@ -51,9 +51,16 @@ RECOMP_PATCH s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
     //     analog_x, analog_y);
 
     if (in_free_look) {
+        // @mod Mouse look in the first-person "look around" mode (uses Mouse Aim Sensitivity).
+        bool mouse_look = recomp_get_mouse_aim_sensitivity() > 0;
+        float look_mouse_x = 0.0f, look_mouse_y = 0.0f;
+        if (mouse_look) {
+            recomp_get_mouse_deltas(&look_mouse_x, &look_mouse_y);
+        }
+
         // @recomp Add in the analog camera Y input. Clamp to prevent moving the camera twice as fast if both sticks are held.
         s32 cam_input_y = analog_y;
-        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF) {
+        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF && !mouse_look) {
             cam_input_y += play->state.input[0].rel.stick_y;
         }
         var_s0 = CLAMP(cam_input_y, -61, 61) * 0xF0;
@@ -62,11 +69,24 @@ RECOMP_PATCH s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
         if (!inverted_y) {
             var_s0 = -var_s0;
         }
-        Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
+        if (mouse_look) {
+            // @mod The mouse moves the view directly and keeps it where it was left.
+            s32 new_pitch = this->actor.focus.rot.x + (s32)(look_mouse_y * 20.0f);
+            this->actor.focus.rot.x = CLAMP(new_pitch, -0x36B0, 0x36B0);
+            if (cam_input_y != 0) {
+                Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
+            }
+        }
+        else {
+            Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
+        }
+
+        // @mod Mouse yaw for look mode.
+        this->actor.focus.rot.y += (s16)(look_mouse_x * -20.0f);
 
         // @recomp Add in the analog camera X input. Clamp to prevent moving the camera twice as fast if both sticks are held.
         s32 cam_input_x = analog_x;
-        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF) {
+        if (recomp_aiming_override_mode == RECOMP_AIMING_OVERRIDE_OFF && !mouse_look) {
             cam_input_x += play->state.input[0].rel.stick_x;
         }
         var_s0 = CLAMP(cam_input_x, -61, 61) * -0x10;

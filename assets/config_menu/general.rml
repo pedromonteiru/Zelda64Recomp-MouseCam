@@ -191,6 +191,36 @@
                         </div>
                     </div>
                     
+                    <!-- dark transitions (@mod) -->
+                    <div class="config-option" data-event-mouseover="set_cur_config_index(31)">
+                        <label class="config-option__title">Dark Transitions</label>
+                        <div class="config-option__list">
+                            <input
+                                type="radio"
+                                data-event-blur="set_cur_config_index(-1)"
+                                data-event-focus="set_cur_config_index(31)"
+                                name="dark_transitions_mode"
+                                data-checked="dark_transitions_mode"
+                                value="On"
+                                id="dark_transitions_enabled"
+                                style="nav-up: #autosave_enabled; nav-down: #camera_inversion_none"
+                            />
+                            <label class="config-option__tab-label" for="dark_transitions_enabled">On</label>
+
+                            <input
+                                type="radio"
+                                data-event-blur="set_cur_config_index(-1)"
+                                data-event-focus="set_cur_config_index(31)"
+                                name="dark_transitions_mode"
+                                data-checked="dark_transitions_mode"
+                                value="Off"
+                                id="dark_transitions_disabled"
+                                style="nav-up: #autosave_disabled; nav-down: #camera_inversion_x"
+                            />
+                            <label class="config-option__tab-label" for="dark_transitions_disabled">Off</label>
+                        </div>
+                    </div>
+
                     <!-- camera inversion -->
                     <div class="config-option" data-event-mouseover="set_cur_config_index(7)">
                         <label class="config-option__title">Aiming Camera Mode</label>
@@ -348,6 +378,9 @@
                         <br />
                         <br />
                         <b>Note: This option does not allow mouse buttons to activate items. Mouse aiming is intended to be used with inputs that are mapped to mouse movement, such as gyro on Steam Deck.</b>
+                    </p>
+                    <p data-if="cur_config_index == 31">
+                        Replaces the bright white screen fades used when changing areas during the day (and other white transitions) with black ones. <b>Off</b> keeps the original white fades.
                     </p>
                     <p data-if="cur_config_index == 30">
                         Controls how fast the third-person camera turns with the mouse. Requires <b>Analog Camera</b> to be on. <b>Setting this to zero will disable the mouse camera.</b>

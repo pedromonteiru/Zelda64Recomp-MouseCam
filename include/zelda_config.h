@@ -35,6 +35,18 @@ namespace zelda64 {
         {zelda64::AutosaveMode::Off, "Off"}
     });
 
+    // @mod Replace the white screen transitions with black ones.
+    enum class DarkTransitionsMode {
+        On,
+        Off,
+        OptionCount
+    };
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(zelda64::DarkTransitionsMode, {
+        {zelda64::DarkTransitionsMode::On, "On"},
+        {zelda64::DarkTransitionsMode::Off, "Off"}
+    });
+
     enum class TargetingMode {
         Switch,
         Hold,
@@ -83,6 +95,9 @@ namespace zelda64 {
 
     AutosaveMode get_autosave_mode();
     void set_autosave_mode(AutosaveMode mode);
+
+    DarkTransitionsMode get_dark_transitions_mode();
+    void set_dark_transitions_mode(DarkTransitionsMode mode);
 
     AnalogCamMode get_analog_cam_mode();
     void set_analog_cam_mode(AnalogCamMode mode);

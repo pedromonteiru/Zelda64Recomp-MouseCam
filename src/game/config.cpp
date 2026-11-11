@@ -239,6 +239,7 @@ bool save_general_config(const std::filesystem::path& path) {
     config_json["mouse_camera_sensitivity"] = recomp::get_mouse_camera_sensitivity();
     config_json["joystick_deadzone"] = recomp::get_joystick_deadzone();
     config_json["autosave_mode"] = zelda64::get_autosave_mode();
+    config_json["dark_transitions_mode"] = zelda64::get_dark_transitions_mode();
     config_json["camera_invert_mode"] = zelda64::get_camera_invert_mode();
     config_json["analog_cam_mode"] = zelda64::get_analog_cam_mode();
     config_json["analog_camera_invert_mode"] = zelda64::get_analog_camera_invert_mode();
@@ -256,6 +257,7 @@ void set_general_settings_from_json(const nlohmann::json& config_json) {
     recomp::set_mouse_camera_sensitivity(from_or_default(config_json, "mouse_camera_sensitivity", 50));
     recomp::set_joystick_deadzone(from_or_default(config_json, "joystick_deadzone", 5));
     zelda64::set_autosave_mode(from_or_default(config_json, "autosave_mode", zelda64::AutosaveMode::On));
+    zelda64::set_dark_transitions_mode(from_or_default(config_json, "dark_transitions_mode", zelda64::DarkTransitionsMode::On));
     zelda64::set_camera_invert_mode(from_or_default(config_json, "camera_invert_mode", zelda64::CameraInvertMode::InvertY));
     zelda64::set_analog_cam_mode(from_or_default(config_json, "analog_cam_mode", zelda64::AnalogCamMode::Off));
     zelda64::set_analog_camera_invert_mode(from_or_default(config_json, "analog_camera_invert_mode", zelda64::CameraInvertMode::InvertNone));

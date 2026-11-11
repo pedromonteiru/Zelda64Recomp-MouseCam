@@ -238,6 +238,7 @@ struct ControlOptionsContext {
     zelda64::TargetingMode targeting_mode;
     recomp::BackgroundInputMode background_input_mode;
     zelda64::AutosaveMode autosave_mode;
+    zelda64::DarkTransitionsMode dark_transitions_mode; // @mod
     zelda64::CameraInvertMode camera_invert_mode;
     zelda64::AnalogCamMode analog_cam_mode;
     zelda64::CameraInvertMode analog_camera_invert_mode;
@@ -326,6 +327,17 @@ void recomp::set_background_input_mode(recomp::BackgroundInputMode mode) {
             ? "1"
             : "0"
     );
+}
+
+zelda64::DarkTransitionsMode zelda64::get_dark_transitions_mode() {
+    return control_options_context.dark_transitions_mode;
+}
+
+void zelda64::set_dark_transitions_mode(zelda64::DarkTransitionsMode mode) {
+    control_options_context.dark_transitions_mode = mode;
+    if (general_model_handle) {
+        general_model_handle.DirtyVariable("dark_transitions_mode");
+    }
 }
 
 zelda64::AutosaveMode zelda64::get_autosave_mode() {
@@ -932,6 +944,7 @@ public:
         bind_option(constructor, "targeting_mode", &control_options_context.targeting_mode);
         bind_option(constructor, "background_input_mode", &control_options_context.background_input_mode);
         bind_option(constructor, "autosave_mode", &control_options_context.autosave_mode);
+        bind_option(constructor, "dark_transitions_mode", &control_options_context.dark_transitions_mode);
         bind_option(constructor, "camera_invert_mode", &control_options_context.camera_invert_mode);
         bind_option(constructor, "analog_cam_mode", &control_options_context.analog_cam_mode);
         bind_option(constructor, "analog_camera_invert_mode", &control_options_context.analog_camera_invert_mode);
