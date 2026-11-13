@@ -694,6 +694,9 @@ int main(int argc, char** argv) {
     REGISTER_FUNC(recomp_get_mouse_aim_sensitivity);
     REGISTER_FUNC(recomp_get_dark_transitions_enabled);
     REGISTER_FUNC(recomp_get_hud_scale);
+    REGISTER_FUNC(recomp_get_hud_offset);
+    REGISTER_FUNC(recomp_set_hud_offset);
+    REGISTER_FUNC(recomp_hud_editor_poll);
     REGISTER_FUNC(recomp_get_inverted_axes);
     REGISTER_FUNC(recomp_get_analog_inverted_axes);
     recompui::register_ui_exports();

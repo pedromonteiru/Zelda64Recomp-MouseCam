@@ -35,7 +35,7 @@ int recompui::config_tab_to_index(recompui::ConfigTab tab) {
     case recompui::ConfigTab::Mods:
         return 4;
     case recompui::ConfigTab::Debug:
-        return 5;
+        return 6; // @mod HUD tab is at index 5
     default:
         assert(false && "Unknown config tab.");
         return 0;
@@ -148,6 +148,8 @@ void recomp::config_menu_set_cont_or_kb(bool cont_interacted) {
         }
     }
 }
+
+static void open_hud_editor(); // @mod HUD editor
 
 void close_config_menu_impl() {
     zelda64::save_config();
@@ -572,6 +574,12 @@ public:
         recompui::register_event(listener, "close_config_menu",
             [](const std::string& param, Rml::Event& event) {
                 close_config_menu();
+            });
+
+        // @mod HUD editor
+        recompui::register_event(listener, "open_hud_editor",
+            [](const std::string& param, Rml::Event& event) {
+                open_hud_editor();
             });
 
         recompui::register_event(listener, "open_quit_game_prompt",
@@ -1096,4 +1104,201 @@ Rml::Element* recompui::get_mod_tab() {
     }
 
     return tab_el;
+}
+
+// =====================================================================================
+// @mod HUD layout editor (drag and drop).
+// The HUD is split into groups (see patches/hud_scale.c). Each group has an X/Y offset
+// in N64 pixels. The editor is an overlay context with a small panel; while it is open
+// the game patch reads the mouse through recomp_hud_editor_poll, lets the player drag
+// the groups and draws outlines around them.
+// =====================================================================================
+#include <array>
+#include <atomic>
+#include <mutex>
+#include "elements/ui_element.h"
+#include "elements/ui_label.h"
+#include "elements/ui_button.h"
+
+extern SDL_Window* window;
+
+namespace {
+    constexpr int hud_group_count = 7;
+    std::array<int, hud_group_count * 2> hud_offsets{};
+    std::array<int, hud_group_count * 2> hud_offsets_backup{};
+    std::mutex hud_offsets_mutex;
+    std::atomic<bool> hud_editor_open = false;
+    recompui::ContextId hud_editor_context = recompui::ContextId::null();
+}
+
+void recomp::get_hud_offset(int group, int& x, int& y) {
+    std::lock_guard lock{ hud_offsets_mutex };
+    if (group < 0 || group >= hud_group_count) {
+        x = 0;
+        y = 0;
+        return;
+    }
+    x = hud_offsets[group * 2 + 0];
+    y = hud_offsets[group * 2 + 1];
+}
+
+void recomp::set_hud_offset(int group, int x, int y) {
+    std::lock_guard lock{ hud_offsets_mutex };
+    if (group < 0 || group >= hud_group_count) {
+        return;
+    }
+    hud_offsets[group * 2 + 0] = x;
+    hud_offsets[group * 2 + 1] = y;
+}
+
+std::vector<int> recomp::get_hud_offsets() {
+    std::lock_guard lock{ hud_offsets_mutex };
+    return std::vector<int>(hud_offsets.begin(), hud_offsets.end());
+}
+
+void recomp::set_hud_offsets(const std::vector<int>& offsets) {
+    std::lock_guard lock{ hud_offsets_mutex };
+    hud_offsets.fill(0);
+    for (size_t i = 0; i < offsets.size() && i < hud_offsets.size(); i++) {
+        hud_offsets[i] = offsets[i];
+    }
+}
+
+// Returns true while the editor is open. Mouse position is converted to the N64 HUD space
+// (320x240 centered on the screen), and edges are the left/right limits of the HUD area.
+bool recomp::hud_editor_poll(float& mouse_x, float& mouse_y, bool& mouse_down, float& left_edge, float& right_edge) {
+    if (!hud_editor_open.load()) {
+        return false;
+    }
+
+    int win_w = 1, win_h = 1;
+    int mx = 0, my = 0;
+    uint32_t buttons = SDL_GetMouseState(&mx, &my);
+    if (window != nullptr) {
+        SDL_GetWindowSize(window, &win_w, &win_h);
+    }
+    if (win_w <= 0) win_w = 1;
+    if (win_h <= 0) win_h = 1;
+
+    float win_aspect = (float)win_w / (float)win_h;
+    ultramodern::renderer::GraphicsConfig config = ultramodern::renderer::get_graphics_config();
+
+    float game_aspect = 4.0f / 3.0f;
+    if (config.ar_option != ultramodern::renderer::AspectRatio::Original) {
+        game_aspect = win_aspect;
+    }
+
+    float hud_aspect = 4.0f / 3.0f;
+    switch (config.hr_option) {
+        case ultramodern::renderer::HUDRatioMode::Clamp16x9:
+            hud_aspect = std::min(game_aspect, 16.0f / 9.0f);
+            break;
+        case ultramodern::renderer::HUDRatioMode::Full:
+            hud_aspect = game_aspect;
+            break;
+        default:
+            hud_aspect = 4.0f / 3.0f;
+            break;
+    }
+    hud_aspect = std::max(hud_aspect, 4.0f / 3.0f);
+
+    float scale;
+    if (win_aspect >= 4.0f / 3.0f) {
+        scale = win_h / 240.0f;
+        mouse_x = 160.0f + (mx - win_w / 2.0f) / scale;
+        mouse_y = my / scale;
+    }
+    else {
+        scale = win_w / 320.0f;
+        mouse_x = mx / scale;
+        mouse_y = 120.0f + (my - win_h / 2.0f) / scale;
+    }
+
+    left_edge = 160.0f - 120.0f * hud_aspect;
+    right_edge = 160.0f + 120.0f * hud_aspect;
+
+    // Ignore clicks on the editor panel (middle of the screen).
+    bool over_panel = (mx > win_w * 0.30f && mx < win_w * 0.70f && my > win_h * 0.38f && my < win_h * 0.62f);
+    mouse_down = ((buttons & SDL_BUTTON_LMASK) != 0) && !over_panel;
+    return true;
+}
+
+static void close_hud_editor(bool keep_changes) {
+    if (!keep_changes) {
+        std::lock_guard lock{ hud_offsets_mutex };
+        hud_offsets = hud_offsets_backup;
+    }
+    hud_editor_open.store(false);
+    zelda64::save_config();
+    recompui::hide_context(hud_editor_context);
+}
+
+void recompui::init_hud_editor_context() {
+    using namespace recompui;
+    ContextId context = create_context();
+    context.open();
+    hud_editor_context = context;
+
+    Element* root = context.create_element<Element>(context.get_root_element());
+    root->set_display(Display::Flex);
+    root->set_position(Position::Absolute);
+    root->set_top(0);
+    root->set_right(0);
+    root->set_bottom(0);
+    root->set_left(0);
+    root->set_align_items(AlignItems::Center);
+    root->set_justify_content(JustifyContent::Center);
+    root->set_background_color({0, 0, 0, 0});
+
+    Element* panel = context.create_element<Element>(root);
+    panel->set_display(Display::Flex);
+    panel->set_flex_direction(FlexDirection::Column);
+    panel->set_align_items(AlignItems::Center);
+    panel->set_padding(16, Unit::Dp);
+    panel->set_border_width(1.1, Unit::Dp);
+    panel->set_border_radius(16, Unit::Dp);
+    panel->set_border_color(Color{ 255, 255, 255, 51 });
+    panel->set_background_color(Color{ 8, 7, 13, 210 });
+
+    Label* title = context.create_element<Label>(panel, "HUD Editor", LabelStyle::Large);
+    title->set_margin_bottom(8, Unit::Dp);
+    Label* hint = context.create_element<Label>(panel, "Drag the HUD elements with the mouse", LabelStyle::Small);
+    hint->set_margin_bottom(16, Unit::Dp);
+
+    Element* row = context.create_element<Element>(panel);
+    row->set_display(Display::Flex);
+    row->set_flex_direction(FlexDirection::Row);
+
+    Button* save_button = context.create_element<Button>(row, "Save", ButtonStyle::Primary);
+    save_button->set_margin_left(8, Unit::Dp);
+    save_button->set_margin_right(8, Unit::Dp);
+    save_button->add_pressed_callback([]() { close_hud_editor(true); });
+
+    Button* reset_button = context.create_element<Button>(row, "Reset", ButtonStyle::Secondary);
+    reset_button->set_margin_left(8, Unit::Dp);
+    reset_button->set_margin_right(8, Unit::Dp);
+    reset_button->add_pressed_callback([]() {
+        std::lock_guard lock{ hud_offsets_mutex };
+        hud_offsets.fill(0);
+    });
+
+    Button* cancel_button = context.create_element<Button>(row, "Cancel", ButtonStyle::Secondary);
+    cancel_button->set_margin_left(8, Unit::Dp);
+    cancel_button->set_margin_right(8, Unit::Dp);
+    cancel_button->add_pressed_callback([]() { close_hud_editor(false); });
+
+    context.close();
+}
+
+static void open_hud_editor() {
+    if (!ultramodern::is_game_started() || hud_editor_context == recompui::ContextId::null()) {
+        return;
+    }
+    {
+        std::lock_guard lock{ hud_offsets_mutex };
+        hud_offsets_backup = hud_offsets;
+    }
+    close_config_menu_impl();
+    hud_editor_open.store(true);
+    recompui::show_context(hud_editor_context, "");
 }

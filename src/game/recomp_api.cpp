@@ -53,6 +53,40 @@ extern "C" void recomp_get_mouse_camera_deltas(uint8_t* rdram, recomp_context* c
     recomp::get_mouse_camera_deltas(x_out, y_out);
 }
 
+// @mod HUD editor: per-group offsets.
+extern "C" void recomp_get_hud_offset(uint8_t* rdram, recomp_context* ctx) {
+    s32 group = _arg<0, s32>(rdram, ctx);
+    s32* x_out = _arg<1, s32*>(rdram, ctx);
+    s32* y_out = _arg<2, s32*>(rdram, ctx);
+    int x, y;
+    recomp::get_hud_offset(group, x, y);
+    *x_out = x;
+    *y_out = y;
+}
+
+extern "C" void recomp_set_hud_offset(uint8_t* rdram, recomp_context* ctx) {
+    s32 group = _arg<0, s32>(rdram, ctx);
+    s32 x = _arg<1, s32>(rdram, ctx);
+    s32 y = _arg<2, s32>(rdram, ctx);
+    recomp::set_hud_offset(group, x, y);
+}
+
+// @mod HUD editor: returns 1 while the editor is open, plus mouse position (N64 HUD space) and HUD edges.
+extern "C" void recomp_hud_editor_poll(uint8_t* rdram, recomp_context* ctx) {
+    float* mouse_out = _arg<0, float*>(rdram, ctx);
+    s32* down_out = _arg<1, s32*>(rdram, ctx);
+    float* edges_out = _arg<2, float*>(rdram, ctx);
+    float mx = 0, my = 0, left = 0, right = 320;
+    bool down = false;
+    bool active = recomp::hud_editor_poll(mx, my, down, left, right);
+    mouse_out[0] = mx;
+    mouse_out[1] = my;
+    *down_out = down ? 1 : 0;
+    edges_out[0] = left;
+    edges_out[1] = right;
+    _return<s32>(ctx, active ? 1 : 0);
+}
+
 // @mod HUD scale in percent.
 extern "C" void recomp_get_hud_scale(uint8_t* rdram, recomp_context* ctx) {
     _return<s32>(ctx, recomp::get_hud_scale());

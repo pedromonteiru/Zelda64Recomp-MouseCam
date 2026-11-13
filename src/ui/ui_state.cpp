@@ -238,6 +238,7 @@ public:
         launcher_menu_controller->load_document();
         config_menu_controller->load_document();
         recompui::init_prompt_context();
+        recompui::init_hud_editor_context(); // @mod HUD editor
     }
 
     void unload() {

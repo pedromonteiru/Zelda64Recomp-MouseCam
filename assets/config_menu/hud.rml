@@ -1,0 +1,90 @@
+<template name="config-menu__hud">
+    <head>
+    </head>
+    <body>
+        <form class="config__form" id="conf-hud__form">
+            <div class="config__hz-wrapper" id="conf-hud__hz-wrapper">
+                <!-- Options (@mod: HUD tab) -->
+                <div class="config__wrapper" data-event-mouseout="set_cur_config_index(-1)" id="conf-hud__wrapper" style="overflow-y: auto;">
+                    <!-- HUD scale (@mod) -->
+                    <div class="config-option" data-event-mouseover="set_cur_config_index(32)">
+                        <label class="config-option__title">HUD Scale</label>
+                        <div class="config-option__range-wrapper config-option__list">
+                            <label class="config-option__range-label">{{hud_scale}}%</label>
+                            <input
+                                class="nav-vert"
+                                data-event-blur="set_cur_config_index(-1)"
+                                data-event-focus="set_cur_config_index(32)"
+                                id="hud_scale_input"
+                                type="range"
+                                min="50"
+                                max="150"
+                                style="flex: 1; margin: 0dp;"
+                                data-value="hud_scale"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- HUD editor (@mod) -->
+                    <div class="config-option" data-event-mouseover="set_cur_config_index(33)">
+                        <label class="config-option__title">HUD Layout</label>
+                        <div class="config-option__list">
+                            <button
+                                class="button button--secondary"
+                                data-event-focus="set_cur_config_index(33)"
+                                data-event-blur="set_cur_config_index(-1)"
+                                onclick="open_hud_editor"
+                                id="hud_editor_button"
+                            >
+                                <div class="button__label">Edit HUD Layout</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- dark transitions (@mod) -->
+                    <div class="config-option" data-event-mouseover="set_cur_config_index(31)">
+                        <label class="config-option__title">Dark Transitions</label>
+                        <div class="config-option__list">
+                            <input
+                                type="radio"
+                                data-event-blur="set_cur_config_index(-1)"
+                                data-event-focus="set_cur_config_index(31)"
+                                name="dark_transitions_mode"
+                                data-checked="dark_transitions_mode"
+                                value="On"
+                                id="dark_transitions_enabled"
+                                style="nav-up: #hud_editor_button;"
+                            />
+                            <label class="config-option__tab-label" for="dark_transitions_enabled">On</label>
+
+                            <input
+                                type="radio"
+                                data-event-blur="set_cur_config_index(-1)"
+                                data-event-focus="set_cur_config_index(31)"
+                                name="dark_transitions_mode"
+                                data-checked="dark_transitions_mode"
+                                value="Off"
+                                id="dark_transitions_disabled"
+                                style="nav-up: #hud_editor_button;"
+                            />
+                            <label class="config-option__tab-label" for="dark_transitions_disabled">Off</label>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Descriptions -->
+                <div class="config__wrapper">
+                    <p data-if="cur_config_index == 32">
+                        Changes the size of the HUD (hearts, magic, rupees, buttons, minimap and clock). Each part grows or shrinks from the corner of the screen it is attached to. <b>100% is the original size.</b> (Experimental)
+                    </p>
+                    <p data-if="cur_config_index == 33">
+                        Opens the HUD editor: drag each part of the HUD (hearts, magic, D-Pad, rupees, buttons, minimap, clock) to where you want it. <b>Save</b> keeps the layout, <b>Reset</b> puts everything back, <b>Cancel</b> discards the changes. Only works during gameplay. (Experimental)
+                    </p>
+                    <p data-if="cur_config_index == 31">
+                        Replaces the bright white screen fades used when changing areas during the day (and other white transitions) with black ones. <b>Off</b> keeps the original white fades.
+                    </p>
+                </div>
+            </div>
+        </form>
+    </body>
+</template>

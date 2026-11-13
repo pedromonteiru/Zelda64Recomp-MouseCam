@@ -87,6 +87,7 @@ namespace recompui {
 
     void init_styling(const std::filesystem::path& rcss_file);
     void init_prompt_context();
+    void init_hud_editor_context(); // @mod HUD editor
     void open_choice_prompt(
         const std::string& header_text,
         const std::string& content_text,

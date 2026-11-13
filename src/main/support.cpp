@@ -2,6 +2,9 @@
 #include <SDL.h>
 #include "nfd.h"
 #include "RmlUi/Core.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace zelda64 {
     // MARK: - Internal Helpers
@@ -50,6 +53,15 @@ namespace zelda64 {
         return get_bundle_resource_directory();
 #elif defined(__linux__) && defined(RECOMP_FLATPAK)
         return "/app/bin";
+#elif defined(_WIN32)
+        // @mod Use the folder of the .exe instead of the current working directory, so the
+        // right assets are loaded even when the game is started from a shortcut or another folder.
+        wchar_t exe_path[MAX_PATH];
+        DWORD len = GetModuleFileNameW(nullptr, exe_path, MAX_PATH);
+        if (len > 0 && len < MAX_PATH) {
+            return std::filesystem::path(exe_path).parent_path();
+        }
+        return "";
 #else
         return "";
 #endif

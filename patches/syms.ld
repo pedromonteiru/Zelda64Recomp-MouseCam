@@ -57,3 +57,6 @@ recomp_get_mouse_camera_deltas = 0x8F0000D8;
 recomp_get_mouse_aim_sensitivity = 0x8F0000DC;
 recomp_get_dark_transitions_enabled = 0x8F0000E0;
 recomp_get_hud_scale = 0x8F0000E4;
+recomp_get_hud_offset = 0x8F0000E8;
+recomp_set_hud_offset = 0x8F0000EC;
+recomp_hud_editor_poll = 0x8F0000F0;

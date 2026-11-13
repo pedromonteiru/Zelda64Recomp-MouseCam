@@ -178,6 +178,12 @@ namespace recomp {
     int get_mouse_camera_sensitivity();
     // @mod HUD scale in percent (50 to 150).
     int get_hud_scale();
+    // @mod HUD editor offsets (7 groups) and mouse polling.
+    void get_hud_offset(int group, int& x, int& y);
+    void set_hud_offset(int group, int x, int y);
+    std::vector<int> get_hud_offsets();
+    void set_hud_offsets(const std::vector<int>& offsets);
+    bool hud_editor_poll(float& mouse_x, float& mouse_y, bool& mouse_down, float& left_edge, float& right_edge);
     void set_hud_scale(int scale);
     void set_mouse_camera_sensitivity(int strength);
     void get_mouse_camera_deltas(float* x, float* y);

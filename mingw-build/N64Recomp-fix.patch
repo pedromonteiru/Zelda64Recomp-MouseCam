@@ -1,0 +1,15 @@
+diff --git a/src/recompilation.cpp b/src/recompilation.cpp
+index a54b85f..9d100f3 100644
+--- a/src/recompilation.cpp
++++ b/src/recompilation.cpp
+@@ -297,7 +297,9 @@ bool process_instruction(GeneratorType& generator, const N64Recomp::Context& con
+             }
+             else {
+                 uint32_t target_section = func.section_index;
+-                if (has_reloc) {
++                // @mod Don't use the special absolute section index as a real section index
++                // (it would index past the end of context.sections).
++                if (has_reloc && reloc_section != N64Recomp::SectionAbsolute) {
+                     target_section = reloc_section;
+                 }
+                 JalResolutionResult jal_result = resolve_jal(context, target_section, target_func_vram, matched_func_index);

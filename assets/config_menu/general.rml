@@ -5,7 +5,7 @@
         <form class="config__form" id="conf-general__form">
             <div class="config__hz-wrapper" id="conf-general__hz-wrapper">
                 <!-- Options -->
-                <div class="config__wrapper" data-event-mouseout="set_cur_config_index(-1)" id="conf-general__wrapper">
+                <div class="config__wrapper" data-event-mouseout="set_cur_config_index(-1)" id="conf-general__wrapper" style="overflow-y: auto;">
                     <!-- targeting mode -->
                     <div class="config-option" data-event-mouseover="set_cur_config_index(0)" id="conf-general__Targeting-Mode">
                         <label class="config-option__title">Targeting Mode</label>
@@ -112,25 +112,6 @@
                         </div>
                     </div>
 
-                    <!-- HUD scale (@mod) -->
-                    <div class="config-option" data-event-mouseover="set_cur_config_index(32)">
-                        <label class="config-option__title">HUD Scale</label>
-                        <div class="config-option__range-wrapper config-option__list">
-                            <label class="config-option__range-label">{{hud_scale}}%</label>
-                            <input
-                                class="nav-vert"
-                                data-event-blur="set_cur_config_index(-1)"
-                                data-event-focus="set_cur_config_index(32)"
-                                id="hud_scale_input"
-                                type="range"
-                                min="50"
-                                max="150"
-                                style="flex: 1; margin: 0dp;"
-                                data-value="hud_scale"
-                            />
-                        </div>
-                    </div>
-
                     <!-- joystick deadzone -->
                     <div class="config-option" data-event-mouseover="set_cur_config_index(4)">
                         <label class="config-option__title">Joystick Deadzone</label>
@@ -210,36 +191,6 @@
                         </div>
                     </div>
                     
-                    <!-- dark transitions (@mod) -->
-                    <div class="config-option" data-event-mouseover="set_cur_config_index(31)">
-                        <label class="config-option__title">Dark Transitions</label>
-                        <div class="config-option__list">
-                            <input
-                                type="radio"
-                                data-event-blur="set_cur_config_index(-1)"
-                                data-event-focus="set_cur_config_index(31)"
-                                name="dark_transitions_mode"
-                                data-checked="dark_transitions_mode"
-                                value="On"
-                                id="dark_transitions_enabled"
-                                style="nav-up: #autosave_enabled; nav-down: #camera_inversion_none"
-                            />
-                            <label class="config-option__tab-label" for="dark_transitions_enabled">On</label>
-
-                            <input
-                                type="radio"
-                                data-event-blur="set_cur_config_index(-1)"
-                                data-event-focus="set_cur_config_index(31)"
-                                name="dark_transitions_mode"
-                                data-checked="dark_transitions_mode"
-                                value="Off"
-                                id="dark_transitions_disabled"
-                                style="nav-up: #autosave_disabled; nav-down: #camera_inversion_x"
-                            />
-                            <label class="config-option__tab-label" for="dark_transitions_disabled">Off</label>
-                        </div>
-                    </div>
-
                     <!-- camera inversion -->
                     <div class="config-option" data-event-mouseover="set_cur_config_index(7)">
                         <label class="config-option__title">Aiming Camera Mode</label>
@@ -397,12 +348,6 @@
                         <br />
                         <br />
                         <b>Note: This option does not allow mouse buttons to activate items. Mouse aiming is intended to be used with inputs that are mapped to mouse movement, such as gyro on Steam Deck.</b>
-                    </p>
-                    <p data-if="cur_config_index == 32">
-                        Changes the size of the HUD (hearts, magic, rupees, buttons, minimap and clock). Each part grows or shrinks from the corner of the screen it is attached to. <b>100% is the original size.</b> (Experimental)
-                    </p>
-                    <p data-if="cur_config_index == 31">
-                        Replaces the bright white screen fades used when changing areas during the day (and other white transitions) with black ones. <b>Off</b> keeps the original white fades.
                     </p>
                     <p data-if="cur_config_index == 30">
                         Controls how fast the third-person camera turns with the mouse. Requires <b>Analog Camera</b> to be on. <b>Setting this to zero will disable the mouse camera.</b>
