@@ -56,3 +56,4 @@ recomp_get_actor_spawn_index = 0x8F0000D4;
 recomp_get_mouse_camera_deltas = 0x8F0000D8;
 recomp_get_mouse_aim_sensitivity = 0x8F0000DC;
 recomp_get_dark_transitions_enabled = 0x8F0000E0;
+recomp_get_hud_scale = 0x8F0000E4;

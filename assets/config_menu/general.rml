@@ -112,6 +112,25 @@
                         </div>
                     </div>
 
+                    <!-- HUD scale (@mod) -->
+                    <div class="config-option" data-event-mouseover="set_cur_config_index(32)">
+                        <label class="config-option__title">HUD Scale</label>
+                        <div class="config-option__range-wrapper config-option__list">
+                            <label class="config-option__range-label">{{hud_scale}}%</label>
+                            <input
+                                class="nav-vert"
+                                data-event-blur="set_cur_config_index(-1)"
+                                data-event-focus="set_cur_config_index(32)"
+                                id="hud_scale_input"
+                                type="range"
+                                min="50"
+                                max="150"
+                                style="flex: 1; margin: 0dp;"
+                                data-value="hud_scale"
+                            />
+                        </div>
+                    </div>
+
                     <!-- joystick deadzone -->
                     <div class="config-option" data-event-mouseover="set_cur_config_index(4)">
                         <label class="config-option__title">Joystick Deadzone</label>
@@ -378,6 +397,9 @@
                         <br />
                         <br />
                         <b>Note: This option does not allow mouse buttons to activate items. Mouse aiming is intended to be used with inputs that are mapped to mouse movement, such as gyro on Steam Deck.</b>
+                    </p>
+                    <p data-if="cur_config_index == 32">
+                        Changes the size of the HUD (hearts, magic, rupees, buttons, minimap and clock). Each part grows or shrinks from the corner of the screen it is attached to. <b>100% is the original size.</b> (Experimental)
                     </p>
                     <p data-if="cur_config_index == 31">
                         Replaces the bright white screen fades used when changing areas during the day (and other white transitions) with black ones. <b>Off</b> keeps the original white fades.

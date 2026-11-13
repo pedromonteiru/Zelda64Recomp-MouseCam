@@ -234,6 +234,7 @@ struct ControlOptionsContext {
     int gyro_sensitivity; // 0 to 100
     int mouse_sensitivity; // 0 to 100
     int mouse_camera_sensitivity; // 0 to 100 (@mod)
+    int hud_scale; // 50 to 150 (@mod)
     int joystick_deadzone; // 0 to 100
     zelda64::TargetingMode targeting_mode;
     recomp::BackgroundInputMode background_input_mode;
@@ -263,6 +264,17 @@ int recomp::get_gyro_sensitivity() {
 
 int recomp::get_mouse_sensitivity() {
     return control_options_context.mouse_sensitivity;
+}
+
+int recomp::get_hud_scale() {
+    return control_options_context.hud_scale;
+}
+
+void recomp::set_hud_scale(int scale) {
+    control_options_context.hud_scale = scale;
+    if (general_model_handle) {
+        general_model_handle.DirtyVariable("hud_scale");
+    }
 }
 
 int recomp::get_mouse_camera_sensitivity() {
@@ -940,6 +952,7 @@ public:
         constructor.Bind("gyro_sensitivity", &control_options_context.gyro_sensitivity);
         constructor.Bind("mouse_sensitivity", &control_options_context.mouse_sensitivity);
         constructor.Bind("mouse_camera_sensitivity", &control_options_context.mouse_camera_sensitivity);
+        constructor.Bind("hud_scale", &control_options_context.hud_scale);
         constructor.Bind("joystick_deadzone", &control_options_context.joystick_deadzone);
         bind_option(constructor, "targeting_mode", &control_options_context.targeting_mode);
         bind_option(constructor, "background_input_mode", &control_options_context.background_input_mode);

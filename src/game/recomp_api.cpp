@@ -53,6 +53,11 @@ extern "C" void recomp_get_mouse_camera_deltas(uint8_t* rdram, recomp_context* c
     recomp::get_mouse_camera_deltas(x_out, y_out);
 }
 
+// @mod HUD scale in percent.
+extern "C" void recomp_get_hud_scale(uint8_t* rdram, recomp_context* ctx) {
+    _return<s32>(ctx, recomp::get_hud_scale());
+}
+
 // @mod Mouse aim sensitivity (0 means mouse aiming is off).
 extern "C" void recomp_get_mouse_aim_sensitivity(uint8_t* rdram, recomp_context* ctx) {
     _return<s32>(ctx, recomp::get_mouse_sensitivity());

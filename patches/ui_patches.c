@@ -239,6 +239,10 @@ void Interface_SetOrthoView(InterfaceContext* interfaceCtx);
 void Interface_SetVertices(PlayState* play);
 void Magic_DrawMeter(PlayState* play);
 
+// @mod HUD scale helpers (hud_scale.c).
+void hud_scale_begin(Gfx* gfx);
+void hud_scale_end(Gfx* end, s32 anchor_x, s32 anchor_y);
+
 RECOMP_PATCH void Interface_Draw(PlayState* play) {
     s32 pad;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -295,15 +299,18 @@ RECOMP_PATCH void Interface_Draw(PlayState* play) {
         // @recomp Left align and shift left/up for life meter
         gEXSetViewportAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, -margin_reduction * 4, -margin_reduction * 4);
         gEXSetRectAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, G_EX_ORIGIN_LEFT, -margin_reduction * 4, -margin_reduction * 4, -margin_reduction * 4, -margin_reduction * 4);
+        hud_scale_begin(OVERLAY_DISP); // @mod HUD scale: life meter (top-left)
         Interface_SetOrthoView(interfaceCtx);
 
         LifeMeter_Draw(play);
+        hud_scale_end(OVERLAY_DISP, 0, 0);
 
         Gfx_SetupDL39_Overlay(play->state.gfxCtx);
 
         // @recomp Left align and shift left/down for key count, skulltula count, and rupee count
         gEXSetViewportAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, -margin_reduction * 4, margin_reduction * 4);
         gEXSetRectAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, G_EX_ORIGIN_LEFT, -margin_reduction * 4, margin_reduction * 4, -margin_reduction * 4, margin_reduction * 4);
+        hud_scale_begin(OVERLAY_DISP); // @mod HUD scale: rupees/keys (bottom-left)
 
         // Draw Rupee Icon
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].r,
@@ -481,11 +488,15 @@ RECOMP_PATCH void Interface_Draw(PlayState* play) {
                                 1 << 10);
         }
 
+        hud_scale_end(OVERLAY_DISP, 0, SCREEN_HEIGHT);
+
         // @recomp Left align and shift left/up for magic meter
         gEXSetViewportAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, -margin_reduction * 4, -margin_reduction * 4);
         gEXSetRectAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, G_EX_ORIGIN_LEFT, -margin_reduction * 4, -margin_reduction * 4, -margin_reduction * 4, -margin_reduction * 4);
 
+        hud_scale_begin(OVERLAY_DISP); // @mod HUD scale: magic meter (top-left)
         Magic_DrawMeter(play);
+        hud_scale_end(OVERLAY_DISP, 0, 0);
         
         // @recomp Draw the autosave icon if the game is unpaused.
         if (pauseCtx->state != PAUSE_STATE_MAIN) {
@@ -497,9 +508,11 @@ RECOMP_PATCH void Interface_Draw(PlayState* play) {
             -(SCREEN_WIDTH - margin_reduction) * 4, margin_reduction * 4,
             -(SCREEN_WIDTH - margin_reduction) * 4, margin_reduction * 4);
         gEXSetViewportAlign(OVERLAY_DISP++, G_EX_ORIGIN_RIGHT, -(SCREEN_WIDTH - margin_reduction) * 4, margin_reduction * 4);
+        hud_scale_begin(OVERLAY_DISP); // @mod HUD scale: minimap (bottom-right)
         Interface_SetOrthoView(interfaceCtx);
 
         Minimap_Draw(play);
+        hud_scale_end(OVERLAY_DISP, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         // @recomp Reset viewport alignment for drawing the target reticle
         gEXSetRectAlign(OVERLAY_DISP++, G_EX_ORIGIN_NONE, G_EX_ORIGIN_NONE, 0, 0, 0, 0);
@@ -516,6 +529,7 @@ RECOMP_PATCH void Interface_Draw(PlayState* play) {
             -(SCREEN_WIDTH - margin_reduction) * 4, -margin_reduction * 4);
         gEXSetViewportAlign(OVERLAY_DISP++, G_EX_ORIGIN_RIGHT, -(SCREEN_WIDTH - margin_reduction) * 4, -margin_reduction * 4);
         gEXSetScissorAlign(OVERLAY_DISP++, G_EX_ORIGIN_RIGHT, G_EX_ORIGIN_RIGHT, -(SCREEN_WIDTH - margin_reduction), -margin_reduction, -(SCREEN_WIDTH - margin_reduction), -margin_reduction, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        hud_scale_begin(OVERLAY_DISP); // @mod HUD scale: buttons (top-right)
         Interface_SetOrthoView(interfaceCtx);
 
         Gfx_SetupDL39_Overlay(play->state.gfxCtx);
@@ -528,6 +542,7 @@ RECOMP_PATCH void Interface_Draw(PlayState* play) {
         Interface_DrawCButtonIcons(play);
 
         Interface_DrawAButton(play);
+        hud_scale_end(OVERLAY_DISP, SCREEN_WIDTH, 0);
 
         // @recomp Adjust any scissors to cover the whole screen
         gEXSetScissorAlign(OVERLAY_DISP++, G_EX_ORIGIN_LEFT, G_EX_ORIGIN_RIGHT, 0, -margin_reduction, -SCREEN_WIDTH, margin_reduction, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -611,9 +626,11 @@ RECOMP_PATCH void Interface_Draw(PlayState* play) {
                 // @recomp Use normal alignment and shift down for clock
                 gEXSetRectAlign(OVERLAY_DISP++, G_EX_ORIGIN_NONE, G_EX_ORIGIN_NONE, 0, margin_reduction * 4, 0, margin_reduction * 4);
                 gEXSetViewportAlign(OVERLAY_DISP++, G_EX_ORIGIN_NONE, 0, margin_reduction * 4);
+                hud_scale_begin(OVERLAY_DISP); // @mod HUD scale: clock (bottom-center)
                 Interface_SetOrthoView(interfaceCtx);
 
                 Interface_DrawClock(play);
+                hud_scale_end(OVERLAY_DISP, SCREEN_WIDTH / 2, SCREEN_HEIGHT);
             }
         }
         

@@ -7,7 +7,10 @@ Fork pessoal do [Zelda64Recomp](https://github.com/Zelda64Recomp/Zelda64Recomp) 
 - **Sensibilidades separadas**: *Mouse Aim Sensitivity* (mirar em 1ª pessoa) e *Mouse Camera Sensitivity* (câmera em 3ª pessoa)
 - **WASD não mexe a mira** quando a mira pelo mouse está ligada
 - **Mouse no modo examinar/olhar** (C-Cima / primeira pessoa)
+- **HUD Scale (experimental, branch `hud-scale`)**: slider em Settings → General que aumenta/diminui a HUD (50% a 150%), cada parte presa ao seu canto da tela – `patches/hud_scale.c`
 - **Transições escuras**: opção *Dark Transitions* troca as telas brancas de transição e o clarão branco ao colocar máscaras de transformação por preto – `patches/transition_patches.c`
+
+> **Versões:** `main` = **v1.4 (LTS, estável)**. A branch `hud-scale` / pré-release **v1.5-beta** tem o HUD Scale experimental. Se der problema, use a v1.4.
 
 ## Como usar
 1. Baixe o `.zip` da página de Releases e extraia.

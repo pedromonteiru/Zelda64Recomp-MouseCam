@@ -22,6 +22,7 @@ DECLARE_FUNC(void, recomp_get_mouse_deltas, float* x, float* y);
 DECLARE_FUNC(void, recomp_get_mouse_camera_deltas, float* x, float* y);
 DECLARE_FUNC(s32, recomp_get_mouse_aim_sensitivity);
 DECLARE_FUNC(s32, recomp_get_dark_transitions_enabled);
+DECLARE_FUNC(s32, recomp_get_hud_scale);
 DECLARE_FUNC(s32, recomp_get_targeting_mode);
 DECLARE_FUNC(void, recomp_get_inverted_axes, s32* x, s32* y);
 DECLARE_FUNC(s32, recomp_get_analog_cam_enabled);

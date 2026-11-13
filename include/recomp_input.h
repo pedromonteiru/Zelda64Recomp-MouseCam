@@ -176,6 +176,9 @@ namespace recomp {
     int get_mouse_sensitivity();
     // @mod Separate sensitivity for the third-person mouse camera.
     int get_mouse_camera_sensitivity();
+    // @mod HUD scale in percent (50 to 150).
+    int get_hud_scale();
+    void set_hud_scale(int scale);
     void set_mouse_camera_sensitivity(int strength);
     void get_mouse_camera_deltas(float* x, float* y);
     int get_joystick_deadzone();
